@@ -230,15 +230,16 @@
   <div class="pscroll" id="pbody"></div>
 </aside>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- post-traitement (bloom / FXAA / composer) - r128 -->
-<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/shaders/FXAAShader.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<!-- three.js + post-traitement : un seul CDN (jsdelivr), version épinglée 0.128.0.
+     Fiabilité Safari : évite l'échec de chargement (unpkg) qui désactivait bloom/étalonnage/FXAA. -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/FXAAShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script>
 /* ============================================================
    DIGIT'ARK CITY — prototype
@@ -394,7 +395,7 @@ const GradeShader = {
 
 function initScene(){
   const app = document.getElementById('app');
-  renderer = new THREE.WebGLRenderer({antialias:true, alpha:false});
+  renderer = new THREE.WebGLRenderer({antialias:true, alpha:false, powerPreference:'high-performance'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
@@ -472,7 +473,8 @@ function setupPostProcessing(){
     composer.addPass(new THREE.RenderPass(scene, camera));
 
     // bloom : halo lumineux réaliste sur LED / tour / sculpture (cœur du rendu "jeu")
-    bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(w*pr,h*pr), 0.62, 0.55, 0.72);
+    // rendu à demi-résolution : halo quasi identique, coût GPU bien moindre (fluidité, surtout Safari)
+    bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(Math.round(w*pr*0.5), Math.round(h*pr*0.5)), 0.62, 0.55, 0.72);
     composer.addPass(bloomPass);
 
     // étalonnage cinématique (contraste, teinte froide, vignette, sRGB)
@@ -2108,7 +2110,7 @@ function onResize(){
   renderer.setSize(w, h);
   if(composer){
     composer.setSize(w * pr, h * pr);
-    if(bloomPass) bloomPass.setSize(w * pr, h * pr);
+    if(bloomPass) bloomPass.setSize(Math.round(w*pr*0.5), Math.round(h*pr*0.5));
     if(fxaaPass){
       fxaaPass.material.uniforms['resolution'].value.set(1/(w*pr), 1/(h*pr));
     }
