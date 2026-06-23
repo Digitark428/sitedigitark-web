@@ -89,9 +89,12 @@
   .hub.intro .node{opacity:0;transform:scale(.82);pointer-events:none;
     transition:transform .8s var(--ease-spring),opacity .65s var(--ease)}
   .hub.intro .node.lit{opacity:1;transform:none;pointer-events:auto}
+  .hub.intro .n-identity{transform:translateX(-50%) scale(.82)}
+  .hub.intro .n-identity.lit{transform:translateX(-50%)}
   .scrollcue{transition:opacity .9s var(--ease)}
   .hub.intro ~ .scrollcue{opacity:0}
-  .nav{animation:navin 1.2s .15s both}
+  .nav{animation:navin 1.2s .15s both;pointer-events:none}
+  .nav>*{pointer-events:auto}
   @keyframes navin{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
   .hub{position:relative;flex:1;width:100%;max-width:1640px;margin:0 auto;padding:84px clamp(20px,3.5vw,48px) 40px}
   .lines{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:visible}
@@ -215,6 +218,17 @@
   .n-social{right:3%;top:11.5%}
   .n-digit{right:2.5%;top:42.3%}
   .n-film{right:3%;top:75.5%}
+  /* 7e service — socle, sur l'axe central, sous le noyau */
+  .n-identity{left:50%;bottom:1%;top:auto;transform:translateX(-50%);flex-direction:column;align-items:center;text-align:center;
+    width:clamp(170px,17vw,210px);gap:13px}
+  .n-identity .info{display:flex;flex-direction:column;align-items:center}
+  .n-identity .info p{display:none}
+  .n-identity .more{justify-content:center;margin-top:9px}
+  .n-identity:hover{transform:translateX(-50%) scale(1.06)}
+  .n-identity:active{transform:translateX(-50%) scale(1.015)}
+  .n-identity .icon{width:clamp(64px,6vw,88px);height:clamp(64px,6vw,88px)}
+  @media (max-height:800px){.n-identity .more{display:none}}
+  @media (max-height:740px){.n-identity .icon{width:64px;height:64px}}
 
   .scrollcue{position:relative;z-index:5;display:flex;flex-direction:column;align-items:center;gap:11px;padding-bottom:26px;color:var(--faint)}
   .scrollcue .row{display:flex;align-items:center;gap:13px;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase}
@@ -578,7 +592,16 @@
   .d-pitch-tags span:hover{transform:translateY(-2px);background:rgba(255,138,69,.15);border-color:rgba(255,138,69,.55)}
   .d-pitch-foot{color:var(--ink);font-size:15.5px;font-weight:600;line-height:1.6;margin-top:8px}
 
-</style>
+
+  /* ---------- Callout "Notre méthode" ---------- */
+  .d-method{margin-top:34px;border:1px solid var(--line);border-radius:18px;padding:24px 26px;
+    background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.004));
+    animation:appin .6s var(--ease) both;animation-delay:.05s}
+  .d-method-h{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:11px}
+  .d-method p{color:var(--dim);font-size:14.5px;line-height:1.72;max-width:72ch}
+
+
+  </style>
 </head>
 <body>
 
@@ -682,6 +705,14 @@
         <span class="more">Découvrir <span class="arrow">→</span></span></span>
       <span class="mlabel">Film</span>
     </button>
+
+    <button class="node n-identity" data-service="identity" data-accent="blue" aria-label="Identité visuelle">
+      <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="10.5" height="10.5" rx="1.6"/><circle cx="15.2" cy="15.2" r="5.4"/></svg></span>
+      <span class="info"><h3>Identité visuelle</h3>
+        <span class="more">Découvrir <span class="arrow">→</span></span></span>
+      <span class="mlabel">Identité</span>
+    </button>
+
   </div>
 
   <div class="scrollcue">
@@ -796,6 +827,14 @@ const SERVICES = {
     feat:["Tournage professionnel sur place","Direction créative & storytelling","Vidéo prête à performer","Montage haut de gamme"],
     plans:[
       {name:"Film Signature",tag:"Racontez votre histoire, marquez les esprits.",price:"1190€",note:"Une journée dédiée",items:["Tournage professionnel","Storytelling & direction créative","Montage haut de gamme"]}
+    ]},
+  identity:{accent:'blue',eyebrow:"07 — Identité visuelle",title:"Imaginer.<br>Dessiner. Marquer.",
+    sub:"De l'analyse de votre activité à la finalisation vectorielle, nous concevons un logo et une identité de marque uniques — pensés pour être reconnaissables et exploitables sur tous vos supports.",
+    feat:[],
+    method:"Nous utilisons l'intelligence artificielle comme outil de recherche créative pour explorer rapidement plusieurs pistes visuelles. Une fois la direction validée, le logo est entièrement redessiné à la main, en vectoriel, pour un résultat unique, professionnel et exploitable partout.",
+    plans:[
+      {name:"Offre Essentielle",tag:"Création ou refonte de logo professionnel.",price:"690€",items:["Analyse de votre activité & positionnement","Direction artistique sur mesure","Exploration créative assistée par IA","3 propositions de logo","Jusqu'à 2 séries de modifications","Redessin & finalisation vectorielle","Fichiers livrés : PNG, JPG, PDF, SVG"]},
+      {name:"Offre Professionnelle",featured:"Recommandé",tag:"Logo + identité visuelle complète.",price:"990€",items:["Tout de l'Offre Essentielle","Mini charte graphique (3 à 5 pages)","Couleurs, typographies & variantes du logo","Règles d'utilisation du logo","Exemples d'applications & visuels","Guide PDF prêt à partager"]}
     ]}
 };
 
@@ -836,6 +875,7 @@ function openService(key){
       <p class="d-apps-sub">Des outils que nous avons conçus, développés et déployés — la preuve par l'exemple.</p>
       <div class="app-grid">${s.apps.map(appHTML).join('')}</div></div>`:''}
     ${s.plans&&s.plans.length?`<div class="plans">${plans}</div>`:''}
+    ${s.method?`<div class="d-method"><div class="d-method-h">Notre méthode</div><p>${s.method}</p></div>`:''}
     <div class="d-cta">
       <a class="btn btn-wa" href="https://wa.me/262693813858" target="_blank" rel="noopener">Discuter sur WhatsApp <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       <a class="btn btn-ghost" href="mailto:digitarkcontact@gmail.com">Nous écrire</a></div>`;
@@ -852,6 +892,13 @@ document.querySelectorAll('[data-service]').forEach(el=>el.addEventListener('cli
 const hub=document.getElementById('hub'),svg=document.getElementById('lines');
 const dyn=svg.querySelector('.dynamic'),flowLayer=svg.querySelector('.flowlayer');
 const core=document.querySelector('.core'),nodes=[...document.querySelectorAll('.node')];
+const idNode=document.querySelector('.n-identity');
+function placeIdentity(hb){
+  if(!idNode)return;
+  const c=core.getBoundingClientRect();
+  idNode.style.left='50%';idNode.style.right='auto';idNode.style.bottom='auto';
+  idNode.style.top=Math.round((c.bottom-hb.top)+16)+'px';   // toujours sous le noyau, clearance fixe
+}
 nodes.forEach(n=>{const ic=n.querySelector('.icon');
   if(ic&&!ic.querySelector('.aura'))ic.insertAdjacentHTML('afterbegin','<span class="aura"></span><span class="flash"></span><span class="ripple"></span><span class="ripple2"></span>');});
 const iconEls=nodes.map(n=>n.querySelector('.icon'));
@@ -876,6 +923,7 @@ function cRect(el){const r=el.getBoundingClientRect(),h=hub.getBoundingClientRec
 function drawLines(){
   if(!allowRebuild)return;
   const hb=hub.getBoundingClientRect();
+  placeIdentity(hb);
   svg.setAttribute('viewBox',`0 0 ${hb.width} ${hb.height}`);
   const c=cRect(core),coreR=Math.min(c.w,c.h)/2*0.62;
   let html='',flow='';segments=[];
@@ -974,7 +1022,7 @@ function loop(){if(!reduce){drawParticles();animateFlow();}raf=requestAnimationF
 function startIntro(){
   allowRebuild=false;introState='play';
   hub.classList.add('core-lit');                 // le noyau s'illumine (les anneaux tournent déjà)
-  const order=[0,3,1,4,2,5];                      // tracé équilibré gauche/droite
+  const order=[0,3,1,4,2,5,6];                    // 6 services + socle central
   const t0=820,step=480;
   order.forEach((idx,k)=>{
     setTimeout(()=>{
