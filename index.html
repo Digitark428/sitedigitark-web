@@ -655,6 +655,19 @@
   .site-url{margin-left:12px;font-size:12px;color:var(--dim);letter-spacing:.02em}
   .site-canvas{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
     background:radial-gradient(130% 95% at 50% -5%,rgba(77,157,255,.12),transparent 52%),linear-gradient(160deg,#0b1118,#070a0e 72%)}
+  /* aperçu visuel — capture live du site */
+  .site-shot-wrap{position:relative;aspect-ratio:16/9;overflow:hidden;
+    background:radial-gradient(130% 95% at 50% -5%,rgba(77,157,255,.12),transparent 52%),linear-gradient(160deg,#0b1118,#070a0e 72%)}
+  .site-shot{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;
+    transition:transform .6s var(--ease-spring);user-select:none;-webkit-user-drag:none}
+  .work-site:hover .site-shot{transform:scale(1.04)}
+  .site-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center}
+  .site-shot-wrap.noimg .site-fallback{display:flex}
+  .site-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:18px 20px;
+    background:linear-gradient(0deg,rgba(4,6,10,.72),transparent 46%);opacity:0;transition:opacity .45s var(--ease);pointer-events:none}
+  .work-site:hover .site-overlay{opacity:1}
+  .site-overlay .site-go{background:rgba(255,255,255,.08);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 15px}
   .site-name{font-size:clamp(22px,3vw,36px);font-weight:800;letter-spacing:-.01em}
   .site-go{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.7)}
   .work-site:hover .site-go{color:#fff}
@@ -849,9 +862,11 @@ const SERVICES = {
       {name:"Shoot Intensif",tag:"Accélérez. Dominez. Générez.",from:true,price:"890€",note:"Journée complète",featured:"Offre la plus choisie",items:["8 à 10 vidéos optimisées","Journée complète de tournage","Cadrage optimisé performance","Le meilleur rapport volume / impact"]}
     ],
     works:{type:'video-reel',items:[
-      {title:"Réalisation 01",youtube:"h3JV-7E6Fv4"},
+      {title:"Réalisation 01",youtube:"mb67hhpRZUE"},
       {title:"Réalisation 02",youtube:"jGhNtgQMp7k"},
-      {title:"Réalisation 03",youtube:"32oeZrj4QKc"}
+      {title:"Réalisation 03",youtube:"32oeZrj4QKc"},
+      {title:"Réalisation 04",youtube:"qcezsN4d1vI"},
+      {title:"Réalisation 05",youtube:"b9bErYEM73I"}
     ]}},
   social:{accent:'blue',eyebrow:'02 — Réseaux sociaux',title:"Créer. Publier.<br>Grandir.",
     sub:"On structure votre présence. On développe votre communauté.",
@@ -868,7 +883,7 @@ const SERVICES = {
       {name:"Site Web Sur Mesure",tag:"Votre site, conçu pour convertir.",from:true,price:"690€",items:["Site internet sur mesure","Design premium","Ergonomie optimisée","Responsive mobile / tablette","Expérience utilisateur soignée","Optimisation des conversions"]},
       {name:"Plaquette Commerciale Interactive",tag:"Un support digital qui transforme vos prospects.",from:true,price:"590€",items:["Présentation digitale interactive","Design premium aligné à votre image","Contenus interactifs (vidéos, liens)","Pensée pour convertir"]}
     ],
-    works:{type:'site',items:[{name:"Piscine Islande",domain:"piscineislande.com",url:"https://piscineislande.com"}]}},
+    works:{type:'site',items:[{name:"Piscine Island",domain:"piscineisland.com",url:"https://piscineisland.com/"}]}},
   digit:{accent:'orange',eyebrow:"04 — Création d'applications",title:"Nous créons<br>vos applications.",
     sub:"Nous développons nos propres applications et des outils métiers sur mesure. Pas de template : chaque solution est conçue autour du fonctionnement réel de votre entreprise.",
     feat:[],
@@ -922,9 +937,15 @@ function planHTML(p){
 }
 function workCard(type,it,i){
   if(type==='site'){
+    const shot=it.shot||`https://s0.wp.com/mshots/v1/${encodeURIComponent(it.url)}?w=1280&h=720`;
     return `<a class="work work-site" href="${it.url}" target="_blank" rel="noopener">
       <span class="site-frame"><span class="site-bar"><i></i><i></i><i></i><span class="site-url">${it.domain}</span></span>
-      <span class="site-canvas"><span class="site-name">${it.name}</span><span class="site-go">Visiter le site <span class="arrow">→</span></span></span></span></a>`;
+      <span class="site-shot-wrap">
+        <img class="site-shot" src="${shot}" alt="Aperçu du site ${it.name}" loading="lazy" draggable="false"
+          onerror="this.style.display='none';this.closest('.site-shot-wrap').classList.add('noimg')">
+        <span class="site-fallback"><span class="site-name">${it.name}</span></span>
+        <span class="site-overlay"><span class="site-go">Visiter le site <span class="arrow">→</span></span></span>
+      </span></span></a>`;
   }
   const label=it.title||('Réalisation '+String(i+1).padStart(2,'0'));
   const cls=type==='video-reel'?'wr':(type==='video-film'?'wf':'wp');
