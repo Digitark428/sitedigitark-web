@@ -630,6 +630,12 @@
   .work.wp{width:clamp(260px,64vw,580px)}
   .work.wr{width:clamp(210px,42vw,290px)}
   .work-media video{width:100%;height:100%;object-fit:cover;display:block}
+  /* YouTube embarqué */
+  .yt-facade{cursor:pointer}
+  .yt-thumb{width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .6s var(--ease-spring),filter .5s var(--ease);filter:saturate(.96) brightness(.92);user-select:none;-webkit-user-drag:none}
+  .work:hover .yt-thumb{transform:scale(1.045);filter:saturate(1) brightness(1)}
+  .work-media iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;z-index:3}
   .work-ph{position:absolute;inset:0;background:radial-gradient(130% 90% at 18% -10%,rgba(77,157,255,.14),transparent 56%),linear-gradient(150deg,#0c1018,#070809 70%)}
   .work-ph::after{content:"";position:absolute;inset:0;opacity:.6;background:radial-gradient(circle at 78% 86%,rgba(255,255,255,.05),transparent 46%)}
   .work-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:56px;height:56px;border-radius:50%;z-index:2;
@@ -842,7 +848,11 @@ const SERVICES = {
       {name:"Shoot Express",tag:"Démarrez. Testez. Publiez.",from:true,price:"490€",note:"Demi-journée",items:["4 à 5 vidéos optimisées","Demi-journée de tournage","Prêtes pour les réseaux"]},
       {name:"Shoot Intensif",tag:"Accélérez. Dominez. Générez.",from:true,price:"890€",note:"Journée complète",featured:"Offre la plus choisie",items:["8 à 10 vidéos optimisées","Journée complète de tournage","Cadrage optimisé performance","Le meilleur rapport volume / impact"]}
     ],
-    works:{type:'video-reel',items:[{title:"Réalisation 01"},{title:"Réalisation 02"},{title:"Réalisation 03"},{title:"Réalisation 04"}]}},
+    works:{type:'video-reel',items:[
+      {title:"Réalisation 01",youtube:"h3JV-7E6Fv4"},
+      {title:"Réalisation 02",youtube:"jGhNtgQMp7k"},
+      {title:"Réalisation 03",youtube:"32oeZrj4QKc"}
+    ]}},
   social:{accent:'blue',eyebrow:'02 — Réseaux sociaux',title:"Créer. Publier.<br>Grandir.",
     sub:"On structure votre présence. On développe votre communauté.",
     feat:["Cohérence visuelle","Publication régulière","Contenu pensé pour performer"],
@@ -919,6 +929,16 @@ function workCard(type,it,i){
   const label=it.title||('Réalisation '+String(i+1).padStart(2,'0'));
   const cls=type==='video-reel'?'wr':(type==='video-film'?'wf':'wp');
   const isVideo=type!=='photo';
+  // YouTube : façade légère (miniature + play). L'iframe ne se charge qu'au clic → joue dans le site.
+  if(it.youtube){
+    const id=it.youtube;
+    const thumb=it.poster||`https://i.ytimg.com/vi/${id}/oardefault.jpg`;
+    const fb=`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+    return `<div class="work ${cls}"><span class="work-media yt-facade" data-yt="${id}" role="button" tabindex="0" aria-label="Lire ${label}">
+      <img class="yt-thumb" src="${thumb}" onerror="this.onerror=null;this.src='${fb}'" alt="${label}" loading="lazy" draggable="false">
+      <span class="work-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="work-tag">${label}</span></span></div>`;
+  }
   const media=it.src?`<video src="${it.src}" muted loop playsinline ${it.poster?`poster="${it.poster}"`:''}></video>`:`<span class="work-ph" style="--i:${i}"></span>`;
   const play=isVideo?'<span class="work-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>':'';
   return `<div class="work ${cls}"><span class="work-media">${media}${play}<span class="work-tag">${label}</span></span></div>`;
@@ -941,6 +961,16 @@ function initWorks(){
   const up=()=>{down=false;track.classList.remove('drag');};
   track.addEventListener('pointerup',up);track.addEventListener('pointercancel',up);track.addEventListener('pointerleave',up);
   track.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();}},true);
+  // YouTube : au clic (hors drag), on remplace la miniature par le lecteur embarqué → joue dans le site
+  const playYT=f=>{
+    const id=f.dataset.yt;if(!id||f.dataset.loaded)return;f.dataset.loaded='1';
+    f.innerHTML=`<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1&loop=1&playlist=${id}" title="Réalisation DIGIT'ARK" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+    f.classList.remove('yt-facade');
+  };
+  track.querySelectorAll('.yt-facade').forEach(f=>{
+    f.addEventListener('click',()=>playYT(f));
+    f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();playYT(f);}});
+  });
 }
 function appHTML(a){
   const has=a.href&&a.href!=='#';
